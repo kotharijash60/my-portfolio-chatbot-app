@@ -5,7 +5,7 @@ import requests
 
 # Hugging Face Model ID and API Token
 # Streamlit Cloud uses st.secrets for environment variables/secrets
-HF_MODEL_ID = "gpt2"
+HF_MODEL_ID = "HuggingFaceTB/SmolLM3-3B"
 # IMPORTANT: You will set HF_API_TOKEN in Streamlit Cloud's secrets later.
 HF_API_TOKEN = st.secrets.get("HF_API_TOKEN") 
 
@@ -30,7 +30,7 @@ def query_huggingface_api(payload):
 
 st.set_page_config(page_title="My Portfolio Chatbot")
 st.title("My Portfolio Chatbot")
-st.write("Ask me anything! I'm gpt2")
+st.write("Ask me anything!")
 
 # Initialize chat history
 if "messages" not in st.session_state:
