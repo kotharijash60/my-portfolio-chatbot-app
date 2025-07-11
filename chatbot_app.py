@@ -1,21 +1,28 @@
 import streamlit as st
 import os
 import google.generativeai as genai
-import requests # Keep requests for now, but genai library will handle most calls
 
 # --- Google Gemini API Configuration ---
-# Streamlit Cloud uses st.secrets for environment variables/secrets
 GOOGLE_API_KEY = st.secrets.get("GOOGLE_API_KEY") 
 
-# Configure the Google Generative AI client
 if GOOGLE_API_KEY:
     genai.configure(api_key=GOOGLE_API_KEY)
 else:
     st.error("Google API Key not found. Please set it in Streamlit Cloud secrets as 'GOOGLE_API_KEY'.")
+    st.stop() # Stop execution if no API key to prevent further errors
 
-# Initialize the Gemini model
-# Using 'gemini-pro' for text generation
-model = genai.GenerativeModel('gemini-pro')
+# Initialize the Gemini model for text generation
+# We will explicitly use 'gemini-pro' as the model name
+# If 'gemini-pro' still gives 404, we might try 'text-bison-001'
+try:
+    model = genai.GenerativeModel('gemini-pro') 
+    # Test a simple generate_content call to confirm it's available
+    # This helps catch issues with the model's availability for generate_content
+    model.generate_content("test", stream=False) 
+except Exception as e:
+    st.error(f"Failed to initialize or connect to Gemini model 'gemini-pro': {e}")
+    st.stop()
+
 
 def query_gemini_api(prompt_text):
     """Sends a query to the Google Gemini API."""
@@ -23,9 +30,9 @@ def query_gemini_api(prompt_text):
         return "Google API Key not configured."
     
     try:
-        # Use the generate_content method for the model
-        response = model.generate_content(prompt_text)
-        # Access the text from the response
+        # For simple text generation, generate_content is usually fine.
+        # Stream=True allows for streaming responses, but Stream=False for direct response
+        response = model.generate_content(prompt_text, stream=False)
         return response.text
     except Exception as e:
         st.error(f"Error communicating with Google Gemini API: {e}")
