@@ -11,17 +11,30 @@ else:
     st.error("Google API Key not found. Please set it in Streamlit Cloud secrets as 'GOOGLE_API_KEY'.")
     st.stop() # Stop execution if no API key to prevent further errors
 
-# Initialize the Gemini model for text generation
-# We will explicitly use 'gemini-pro' as the model name
-# If 'gemini-pro' still gives 404, we might try 'text-bison-001'
+# --- Debugging: List Available Models ---
+st.header("Debugging: Available Gemini Models")
 try:
-    model = genai.GenerativeModel('gemini-pro') 
-    # Test a simple generate_content call to confirm it's available
-    # This helps catch issues with the model's availability for generate_content
-    model.generate_content("test", stream=False) 
+    for m in genai.list_models():
+        # Filter for models that support generateContent and text as input
+        if 'generateContent' in m.supported_generation_methods and 'text' in m.input_token_limit_protos[0].token_limit_type.name.lower():
+            st.write(f"Model Name: {m.name}, Supported Methods: {m.supported_generation_methods}")
 except Exception as e:
-    st.error(f"Failed to initialize or connect to Gemini model 'gemini-pro': {e}")
-    st.stop()
+    st.error(f"Error listing models: {e}")
+
+st.divider() # Adds a separator in the UI
+
+# Initialize the Gemini model (we will set this correctly AFTER seeing list_models output)
+# For now, we'll keep 'gemini-pro' as a placeholder, but expect it to error for initial testing
+model = None # Initialize as None
+try:
+    # We will replace 'gemini-pro' with the correct model name from the list above
+    # Once you get the list, you'll change this line back
+    model = genai.GenerativeModel('gemini-pro') 
+    # Attempt a quick test to see if it works, will likely error
+    model.generate_content("test", stream=False)
+except Exception as e:
+    st.error(f"Initial test of 'gemini-pro' failed: {e}")
+    # We won't stop the app here, so the model listing can still be seen
 
 
 def query_gemini_api(prompt_text):
@@ -29,9 +42,10 @@ def query_gemini_api(prompt_text):
     if not GOOGLE_API_KEY:
         return "Google API Key not configured."
     
+    if model is None: # Added check if model failed to initialize
+        return "AI Model failed to initialize."
+
     try:
-        # For simple text generation, generate_content is usually fine.
-        # Stream=True allows for streaming responses, but Stream=False for direct response
         response = model.generate_content(prompt_text, stream=False)
         return response.text
     except Exception as e:
@@ -54,20 +68,16 @@ for message in st.session_state.messages:
 
 # React to user input
 if prompt := st.chat_input("What would you like to ask?"):
-    # Display user message in chat message container
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate a response from the AI model
     with st.spinner("Thinking..."):
         bot_response = query_gemini_api(prompt)
             
         if not bot_response:
             bot_response = "I'm having trouble generating a response. Please check the API."
 
-    # Display assistant response in chat message container
     with st.chat_message("assistant"):
         st.markdown(bot_response)
-    # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": bot_response})
