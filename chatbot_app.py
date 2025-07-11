@@ -31,8 +31,9 @@ st.divider() # Adds a separator in the UI
 # Initialize the Gemini model (we will set this correctly AFTER seeing list_models output)
 # For now, we'll use a placeholder that will likely still error for the main chat functionality
 # You will replace this with the correct model name after the next deploy shows the list
-model = None 
-st.write("Below is the chatbot interface. It might still show an error until a working model is configured based on the list above.")
+# Initialize the Gemini model
+model = genai.GenerativeModel('models/gemini-1.5-flash-latest') 
+st.write("Ask me anything! I'm powered by Google Gemini 1.5 Flash.") 
 
 def query_gemini_api(prompt_text):
     """Sends a query to the Google Gemini API."""
