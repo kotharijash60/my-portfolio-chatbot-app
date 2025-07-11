@@ -5,7 +5,7 @@ import requests
 
 # Hugging Face Model ID and API Token
 # Streamlit Cloud uses st.secrets for environment variables/secrets
-HF_MODEL_ID = "tngtech/DeepSeek-TNG-R1T2-Chimera"
+HF_MODEL_ID = "facebook/blenderbot-400M-distill"
 # IMPORTANT: You will set HF_API_TOKEN in Streamlit Cloud's secrets later.
 HF_API_TOKEN = st.secrets.get("HF_API_TOKEN") 
 
