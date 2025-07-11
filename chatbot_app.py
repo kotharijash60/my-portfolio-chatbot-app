@@ -12,38 +12,35 @@ else:
     st.stop() # Stop execution if no API key to prevent further errors
 
 # --- Debugging: List Available Models ---
-st.header("Debugging: Available Gemini Models")
+st.header("Debugging: Available Gemini Models (Supporting generateContent)")
 try:
+    available_models = []
     for m in genai.list_models():
-        # Filter for models that support generateContent and text as input
-        if 'generateContent' in m.supported_generation_methods and 'text' in m.input_token_limit_protos[0].token_limit_type.name.lower():
-            st.write(f"Model Name: {m.name}, Supported Methods: {m.supported_generation_methods}")
+        if 'generateContent' in m.supported_generation_methods:
+            available_models.append(m.name)
+            st.write(f"Available Model: **`{m.name}`** (Supported Methods: `{m.supported_generation_methods}`)")
+    
+    if not available_models:
+        st.warning("No models found that support 'generateContent'. This might indicate an API key issue or regional restriction.")
+
 except Exception as e:
     st.error(f"Error listing models: {e}")
 
 st.divider() # Adds a separator in the UI
 
 # Initialize the Gemini model (we will set this correctly AFTER seeing list_models output)
-# For now, we'll keep 'gemini-pro' as a placeholder, but expect it to error for initial testing
-model = None # Initialize as None
-try:
-    # We will replace 'gemini-pro' with the correct model name from the list above
-    # Once you get the list, you'll change this line back
-    model = genai.GenerativeModel('gemini-pro') 
-    # Attempt a quick test to see if it works, will likely error
-    model.generate_content("test", stream=False)
-except Exception as e:
-    st.error(f"Initial test of 'gemini-pro' failed: {e}")
-    # We won't stop the app here, so the model listing can still be seen
-
+# For now, we'll use a placeholder that will likely still error for the main chat functionality
+# You will replace this with the correct model name after the next deploy shows the list
+model = None 
+st.write("Below is the chatbot interface. It might still show an error until a working model is configured based on the list above.")
 
 def query_gemini_api(prompt_text):
     """Sends a query to the Google Gemini API."""
     if not GOOGLE_API_KEY:
         return "Google API Key not configured."
     
-    if model is None: # Added check if model failed to initialize
-        return "AI Model failed to initialize."
+    if model is None: # Check if model failed to initialize due to the error
+        return "AI Model failed to initialize. Check the 'Debugging' section above."
 
     try:
         response = model.generate_content(prompt_text, stream=False)
