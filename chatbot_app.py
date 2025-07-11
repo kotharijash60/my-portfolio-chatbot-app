@@ -5,7 +5,7 @@ import requests
 
 # Hugging Face Model ID and API Token
 # Streamlit Cloud uses st.secrets for environment variables/secrets
-HF_MODEL_ID = "HuggingFaceTB/SmolLM3-3B"
+HF_MODEL_ID = "gpt2"
 # IMPORTANT: You will set HF_API_TOKEN in Streamlit Cloud's secrets later.
 HF_API_TOKEN = st.secrets.get("HF_API_TOKEN") 
 
