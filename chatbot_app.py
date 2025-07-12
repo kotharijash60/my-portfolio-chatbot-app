@@ -30,7 +30,7 @@ st.write("Ask me anything! I'm powered by Google Gemini 1.5 Flash.")
 
 # Initialize chat history in Streamlit session state
 if "chat_session" not in st.session_state:
-    st.session_session = model.start_chat(history=[]) # Start a new chat session
+    st.session_state.chat_session = model.start_chat(history=[])
 
 # Display chat messages from history on app rerun
 for message in st.session_state.chat_session.history: # Iterate through the chat session history
